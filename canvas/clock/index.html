@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<canvas id="cvs" width="400" height="400" style="background:#eee"></canvas>
+	<script>
+
+var obj  = {
+   config : {
+        r : 100
+   },
+   drawTray : function(ctx){
+        ctx.save();
+        ctx.strokeStyle = "blue";
+        for(var i=0;i<60;i++){
+        ctx.beginPath();
+           ctx.moveTo(0,-this.config.r);
+           ctx.lineTo(0,-this.config.r+(i%5?10:20));
+           ctx.stroke();
+           ctx.closePath();
+           ctx.rotate(6*Math.PI/180);
+        }
+        ctx.restore();
+   },
+   drawSecPointer : function(ctx,s){
+        ctx.save();
+      ctx.beginPath();
+        ctx.strokeStyle = "red";
+        ctx.rotate(6*s*Math.PI/180);
+        ctx.moveTo(0,10);
+        ctx.lineTo(0,-this.config.r);
+        ctx.stroke();
+        ctx.closePath();
+        ctx.restore();
+   },
+   drawMinPointer : function(ctx,s,m){
+        ctx.save();
+      ctx.beginPath();
+        ctx.strokeStyle = "green";
+        ctx.rotate((6*m+s/60)*Math.PI/180);
+        ctx.moveTo(0,10);
+        ctx.lineTo(0,-this.config.r+25);
+        ctx.stroke();
+        ctx.closePath();
+        ctx.restore();
+   },
+   drawHourPointer : function(ctx,s,m,h){
+		ctx.save();
+		ctx.beginPath();
+        ctx.strokeStyle = "yellow";
+        ctx.rotate((h*30+(m/2))*Math.PI/180);
+        ctx.moveTo(0,10);
+        ctx.lineTo(0,-this.config.r+60);
+        ctx.stroke();
+        ctx.closePath();
+        ctx.restore();
+		
+   },
+   drawClock : function(ctx){
+     ctx.resetTransform();
+     ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+       ctx.translate(ctx.canvas.width/2,ctx.canvas.height/2);
+       this.drawTray(ctx);
+       var date = new Date();
+       var s = date.getSeconds(),
+           m = date.getMinutes(),
+           h = date.getHours();
+       this.drawSecPointer(ctx,s);
+       this.drawMinPointer(ctx,s,m);
+       this.drawHourPointer(ctx,s,m,h);
+
+       this.timer = setTimeout(arguments.callee.bind(this,ctx),1000);
+   },
+   stop : function(){clearTimeout(this.timer);}
+}
+
+obj.drawClock(document.querySelector("#cvs").getContext("2d"));
+	</script>
+</body>
+</html>
