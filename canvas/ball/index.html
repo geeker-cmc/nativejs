@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+	</head>
+	<body>
+		<canvas id="can" width="400px" height="400px" style="background-color:#ccc"></canvas>
+	</body>
+	<script>
+		var can=document.querySelector("#can");
+		var tex=can.getContext("2d");
+		var ball={
+			x:25,
+			y:25,
+			r:25,
+			xTemp:5,
+			yTemp:7,
+			color:"red",
+			move:function(tex1){
+				tex1.clearRect(0,0,tex1.canvas.width,tex1.canvas.height);
+				if(this.x<25||this.x>=375){
+					this.xTemp*=-1;
+				}
+				if(this.y<25||this.y>=375){
+					this.yTemp*=-1;
+				}
+				
+				tex1.beginPath();
+				tex1.arc(this.x,this.y,this.r,0,2*Math.PI,true);
+				tex1.fillStyle="red";
+				tex1.fill();
+				tex1.closePath();
+				this.x+=this.xTemp;
+				this.y+=this.yTemp;
+				var self=this;
+				setTimeout(arguments.callee.bind(this,tex),20)
+			}
+			
+		}
+		ball.move(tex);
+		
+	</script>
+</html>
