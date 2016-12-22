@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>双向绑定</title>
+</head>
+<body>
+	<input type="text" model='name'/><br><br>
+	<button custom-click='setValue'>点击</button>
+	
+<script>
+	var angular={
+		events:{},
+		watch:function(attr,fn){
+			this.events[attr]||(this.events[attr]=[]);
+			this.events[attr].push({
+				attr:attr,
+				fn:fn
+			})
+		},
+		digest:function(attr,val){
+			this.events[attr]||(this.events[attr]=[]);
+			this.events[attr].forEach(function(item){
+				item.attr==attr&&item.fn(val)
+			})
+		},
+		apply_:function(){
+			var model=this.model;
+			var vModel=this.vModel;
+			for(var k in model){
+				var newValue=model[k];
+				var oldValue=vModel[k];
+				if(newValue!=oldValue){
+					this.digest(k,newValue);
+					vModel[k]=model[k];
+				}
+			}
+		}
+	}
+	angular.createScope=function(list){
+		var self=this;
+		this.vModel={};
+		this.model={
+			setValue:function(k,v){
+				this[k]=v;
+				self.apply_(k,v);
+			}
+			
+		}
+		for(var i=0;i<list.length;i++){
+				var item=list[i];
+				var attrName=item.getAttribute('model');
+				this.model[attrName]='';
+				this.watch(attrName,function(newValue){
+					document.querySelector('[model='+attrName+']').value=newValue;
+				})
+			}
+	}
+	angular.bindEvent=function(){
+		var self=this;
+		document.addEventListener('keyup',function(e){
+			var t=e.target;
+			if(t.getAttribute('model')){
+				var newValue=t.value;
+				self.model[t.getAttribute('model')]=newValue;
+				self.apply_();
+			}
+		})
+	}
+	angular.wrapClick=function(list){
+		var self=this;
+		for(var i=0;i<list.length;i++){
+			var btn=list[i];
+			var fn=btn.getAttribute('custom-click');
+			btn.onclick=function(){
+				angular[fn]();
+				self.apply_();
+			}
+		}
+	}
+	angular.init=function(){
+		var list=document.querySelectorAll('[model]');
+		var clicklist=document.querySelectorAll('[custom-click]');
+		this.createScope(list);
+		this.wrapClick(clicklist);
+		this.bindEvent();
+		this.model.name='lili';
+		this.apply_();
+	}
+	angular.setValue=function(){
+		this.model.name='kangkang';
+	}
+	angular.init();
+</script>
+</html>

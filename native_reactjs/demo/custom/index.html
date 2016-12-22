@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>custom</title>
+	<script type="text/javascript" src="../jquery.js"></script>
+</head>
+<body>
+	<div id="container"></div>
+</body>
+<script>
+	//component类,用来表示文本在渲染，更新，删除时应该做些什么事情
+	function ReactDOMTextComponent(text){
+		//存下当前的字符串
+		this._currentElement=''+text;
+		//用来标识当前component
+		this._rootNodeID=null;
+	}
+	//component渲染时生成的dom结构
+	ReactDOMTextComponent.prototype.mountComponent=function(rootID){
+		this._rootNodeID=rootID;
+		return '<span data-reactid="'+rootID+'">'+this._currentElement+'</span>';
+	}
+	//component类，用来表示文本在渲染，更新，删除时应该做些什么事情
+	function ReactDomComponent(element){
+		//存下当前的element对象引用
+		this._currentElement=element;
+		this._rootNodeID=null;
+	}
+	//component渲染时生成dom结构
+	ReactDomComponent.prototype.mountComponent=function(rootID){
+		this._rootNodeID=rootID;
+		var props=this._currentElement.props;
+		var tagOpen='<'+this._currentElement.type;
+		var tagClose='</'+this._currentElement.type+'>';
+		//加上reactid标识
+		tagOpen+=' data-reactid='+this._rootNodeID;
+		//拼凑出属性
+		for(var propKey in props){
+			if(/^on[A-Za-a]/.test(propKey)){
+				var eventType=propKey.replace('on','');
+				$(document).on(eventType,'[data-reactid="'+this._rootNodeID+'"]',props[propKey]);
+			}
+			if(props[propKey]&&propKey!='children'&&!/^on[A-Za-z]/.test(propKey)){
+				tagOpen+=' '+propKey+'='+props[propKey];
+			}
+		}
+		//获取子节点渲染出的内容
+		var content='';
+		var children=props.children||[];
+		var childrenInstances=[];
+		var that=this;
+		$.each(children,function(key,child){
+			//调用instantiateReactComponent类
+			var childComponentInstance=instantiateReactComponent(child);
+			childComponentInstance._mountIndex=key;
+			childrenInstances.push(childComponentInstance);
+			//子节点的rootId是父节点的rootId加上新的Key也就是顺序的值拼成的新值
+			var curRootId=that._rootNodeID+'.'+key;
+			//得到子节点的渲染的内容
+			var childMarkup=childComponentInstance.mountComponent(curRootId);
+			//拼接在一起
+			content+=' '+childMarkup;
+
+		})
+		this._renderedChildren=childrenInstances;
+		//拼出整个html
+		return tagOpen+">"+content+tagClose;
+	}
+
+
+	function ReactCompositeComponent(element){
+		//存放元素的element对象
+		this._currentElement=element;
+		//存放唯一标识
+		this._rootNodeID=null;
+		//存放对应的ReactClass的实例
+		this._instance=null;
+	}
+	//用于返回当前自定义元素渲染时应该返回的内容
+	ReactCompositeComponent.prototype.mountComponent=function(rootID){
+		this._rootNodeID=rootID;
+		//拿到当前元素对应的属性值
+		var publicProps=this._currentElement.props;
+        //拿到对应的ReactClass
+        var  ReactClass=this._currentElement.type;
+
+        var inst=new ReactClass(publicProps);
+        this._instance=inst;
+        //保留当前comonent的引用,
+        inst._reactInternalInstance=this;
+        if(inst.componentWillMonunt){
+        	inst.componentWillMonunt();
+        }
+        var renderedElement=this._instance.render();
+        var renderedComponentInstance=instantiateReactComponent(renderedElement);
+        this._renderedComponent=renderedComponentInstance;
+
+        var renderedMarkup=renderedComponentInstance.mountComponent(this._rootNodeID);
+
+        $(document).on('mountReady',function(){
+        	inst.componentDidMount&&inst.componentDidMount();
+        })
+        return renderedMarkup;
+	}
+
+
+	function instantiateReactComponent(node){
+		//文本节点的情况
+		if(typeof node ==="string"||typeof node==="number"){
+			return new ReactDOMTextComponent(node);
+		}
+		//默认节点
+		if(typeof node ==="object"&&typeof node.type==="string"){
+			return new ReactDomComponent(node);
+		}
+		//自定义的元素节点
+		if(typeof node ==="object"&&typeof node.type==="function"){
+			return new ReactCompositeComponent(node);
+		}
+	}
+
+	function ReactElement(type,key,props){
+		this.type=type;
+		this.key=key;
+		this.props=props;
+	}
+	//定义ReactClass类,
+	var ReactClass=function(){
+
+	}
+	ReactClass.prototype.render=function(){
+
+	}
+     
+
+     React={
+     	nextReactRootIndex:0,
+     	createClass:function(spec){
+     		//生成一个子类
+     		var Constructor=function(props){
+     			this.props=props;
+     			this.state=this.getInitialState?this.getInitialState():null;
+
+     		}
+     		Constructor.prototype=new ReactClass();
+     		Constructor.prototype.constructor=Constructor;
+     		$.extend(Constructor.prototype,spec);
+     		return Constructor;
+     	},
+     	createElement:function(type,config,children){
+     		var props={},propName,
+     		config=config||{},
+     		key=config.key||null;
+     		for(propName in config){
+     			if(config.hasOwnProperty(propName)&&propName!=='key'){
+     				props[propName]=config[propName];
+     			}
+     		}
+     		//处理children
+     		var childrenLength=arguments.length-2;
+     		if(childrenLength===1){
+     			props.children=$.isArray(children)?children:[children];
+
+     		}else if(childrenLength>1){
+     			var childArray=Array(childrenLength);
+     			for(var i=0;i<childrenLength;i++){
+     				childArray[i]=arguments[i+2];
+     			}
+     			props.children=childArray;
+     		}
+     		return new ReactElement(type,key,props);
+     	},
+     	render:function(element,container){
+     		var componentInstance=instantiateReactComponent(element);
+     		var markup=componentInstance.mountComponent(React.nextReactRootIndex++);
+     		$(container).html(markup);
+     		$(document).trigger('mountReady');
+     	}
+     }
+
+
+     var HelloMessage=React.createClass({
+     	getInitialState:function(){
+     		return {type:'say'};
+     	},
+     	componentWillMonunt:function(){
+     		console.log("我要开始渲染了！！！！");
+     		debugger;
+     	},
+     	componentDidMount:function(){
+     		console.log("我已经渲染好了!!!!");
+     		debugger;
+     	},
+     	render:function(){
+     		return React.createElement('div',null,this.state.type,'Hello',this.props.name);
+     	}
+     })
+
+
+     React.render(React.createElement(HelloMessage,{name:"john"}),document.getElementById("container"));
+</script>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>hello world!!!</title>
+	<script src="../jquery.js"></script>
+</head>
+<body>
+	<div id="container"></div>
+</body>
+<script>
+	// //component类，用来表示文件在渲染，更新，删除时应该做些什么事情
+	// function ReactDOMTextComponent(text){
+	// 	//存下当前的字符串
+	// 	this._currentElement=''+text;
+	// 	//用来标识当前的component
+	// 	this._rootNodeID=null;
+	// }
+	// //component渲染时生成的DOM结构
+	// ReactDOMTextComponent.prototype.mountComponent = function(rootID){
+	// 	this._rootNodeID = rootID;
+	// 	return "<span data-reactid='"+this._rootNodeID+"'>"+this._currentElement+"</span>"
+	// }
+	// //component工厂  用来返回一个component实例
+	// function instantiateReactComponent(node){
+	// 	if(typeof node === 'string'||typeof node ==='number'){
+	// 		return new ReactDOMTextComponent(node);
+	// 	}
+	// }
+	// React={
+	// 	nextReactRootIndex:0,
+	// 	render:function(element,container){
+	// 		var componentInstance=instantiateReactComponent(element);
+	// 		var markup=componentInstance.mountComponent(React.nextReactRootIndex++);
+	// 		$(container).html(markup);
+	// 		//触发完成mount的事件
+	// 		$(document).trigger('mountReady');
+	// 	}
+	// }
+
+
+	// React.render('hello world!!!',document.getElementById('container'));
+	//component类用来表示文件渲染，更新，删除时应该做的事
+	function ReactDOMTextComponent(text){
+		this._currentElement=''+text;
+		this._rootNodeID=null;
+	}
+	//component渲染时生成DOM结构
+	ReactDOMTextComponent.prototype.mountComponent=function(rootID){
+       this._rootNodeID=rootID;
+       return "<span data-reactid='"+this._rootNodeID+"'>"+this._currentElement+"</span>"
+	}
+	//component工厂  返回一个component的实例
+	function instantiateReactComponent(node){
+		if(typeof node === 'string'||typeof node === 'number'){
+			return new ReactDOMTextComponent(node);
+		}
+	}
+
+	React={
+		nextReactRootIndex:0,
+		render:function(element,container){
+			var componentInstance=instantiateReactComponent(element);
+			var markup=componentInstance.mountComponent(React.nextReactRootIndex++);
+			$(container).html(markup);
+		}
+	}
+	React.render("hello world!!!",document.getElementById("container"));
+</script>
+</html>
