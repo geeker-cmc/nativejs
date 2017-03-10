@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>原生路由</title>
+</head>
+<body>
+	<ul> 
+    <li><a href="#/">turn white</a></li> 
+    <li><a href="#/blue">turn blue</a></li> 
+    <li><a href="#/green">turn green</a></li> 
+</ul> 
+</body>
+<script src="index.js"></script>
+<script>
+	var content=document.querySelector('body');
+	function changeBgColor(color){
+		content.style.backgroundColor=color;
+	}
+	Router.route('/',function(){
+			changeBgColor('white')
+	})
+	Router.route('/blue',function(){
+			changeBgColor('blue')
+	})
+	Router.route('/green',function(){
+			changeBgColor('green')
+	})
+</script>
+</html>
