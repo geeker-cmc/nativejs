@@ -1,3 +1,4 @@
+//路由的构造器
 function Router(){
 	this.routes={};
 	this.currentUrl='';
