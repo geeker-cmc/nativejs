@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>touch事件</title>
+	<style>
+		#test{
+			width:100px;
+			height:100px;
+			background-color:red;
+		}
+	</style>
+</head>
+<body>
+	<div id="test"></div>
+</body>
+<script>
+var test=document.querySelector('#test');
+  'touchstart touchmove touchend'.split(' ').forEach(function(even){
+  	    switch(even){
+  	    	case 'touchstart':
+             test.addEventListener(even,function(e){
+             	console.log(e.touches)
+             },false);
+             break;
+            case 'touchmove':
+             test.addEventListener(even,function(e){
+             	console.log(e.touches)}
+             	,false);
+             break;
+             case 'touchend':
+              test.addEventListener(even,function(e){
+              	console.log(e.touches)
+              },false);
+             break;
+  	    }
+  })	
+</script>
+</html>
