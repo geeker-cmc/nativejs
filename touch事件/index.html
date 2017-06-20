@@ -5,9 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>touch事件</title>
 	<style>
+  *{
+    margin:0;
+    padding:0;
+
+  }
+  html,body{
+    height:100%;
+  }
 		#test{
 			width:100px;
-			height:100px;
+			height:200%;
 			background-color:red;
 		}
 	</style>
@@ -21,20 +29,30 @@ var test=document.querySelector('#test');
   	    switch(even){
   	    	case 'touchstart':
              test.addEventListener(even,function(e){
-             	console.log(e.touches)
+             	console.log(e.touches,'触摸开始')
              },false);
              break;
             case 'touchmove':
              test.addEventListener(even,function(e){
-             	console.log(e.touches)}
+              e.preventDefault();
+             	console.log(e.touches,'开始滑动')}
              	,false);
              break;
              case 'touchend':
               test.addEventListener(even,function(e){
-              	console.log(e.touches)
+              	console.log(e.touches,'触摸结束')
               },false);
              break;
   	    }
   })	
+  //touchstart 手指放在屏幕上时触发
+  //touchmove 手指在屏幕上滑动时触发
+  //touchend 手指离开屏幕时触发
+  //touchcancel 系统取消touch事件的时候触发
+
+  //touches 当前dom元素上所有手指的列表
+  //targetTouches 当前dom元素上手指的列表，尽量使用这个代替touches
+  //changedTouches 涉及当前事件的手指的列表，尽量使用这个代替touches
+
 </script>
 </html>
