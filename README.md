@@ -14,23 +14,11 @@
 >发布订阅模式，降低模块间的耦合。
 
 
-### Object的所有方法
 
-> 学习原生构造器里面的方法，有一个方法可以查看构造器的静态方法和原型上的方法
 
-```
-   Object.getOwnPropertyNames(Object.prototype);
 
-   //输出["__defineGetter__", "__defineSetter__", "hasOwnProperty", "__lookupGetter__", "__lookupSetter__", "constructor", "toString", "toLocaleString", "valueOf", "isPrototypeOf", "propertyIsEnumerable", "__proto__"]  这是Object原型上面的方法或属性
 
-   Object.getOwnPropertyNames(Object)
 
-   //输出 ["length", "name", "arguments", "caller", "prototype", "assign", "create", "getOwnPropertyDescriptor", "getOwnPropertyNames", "getOwnPropertySymbols", "is", "preventExtensions", "seal", "defineProperties", "defineProperty", "freeze", "getPrototypeOf", "isExtensible", "isFrozen", "isSealed", "keys", "setPrototypeOf"] 这是Object上面的方法或属性
-```
-
-下面我们来看这些方法的用法
-
-首先是原型上面的方法
 
 
 
